@@ -114,7 +114,7 @@ namespace Lab6
 
         static bool containsPunctuation(string input)
         {
-            char[] punctuation = { '.', ',', '!' };
+            char[] punctuation = { '.', ',', '!','?' };
             char[] letters = input.ToArray();
 
             for (int i = 0; i < letters.Length; i++)
@@ -316,50 +316,48 @@ namespace Lab6
             do  // Loop while user continues
             {
                 Console.WriteLine("Welcome to Pig Latin Translator.\nPlease enter a sentence to convert to pig latin: ");
-                string inSentence = (Console.ReadLine());
-                // Split sentence into words by spaces
-                string[] words = inSentence.Split(' ');
-                StringBuilder outSentence = new StringBuilder();
-                StringBuilder convertedWord;
-
-
-                // Loop for all the words in a sentence
-                for (int i = 0; i < words.Length; i++)
+                string inSentence = Console.ReadLine();
+                
+                // Check to see if user enters NULL input.  Basically no input
+                if (inSentence != "")
                 {
-                    // Validate test conditions
-                    bool caps = allCaps(words[i]);
-                    bool numbers = containsNumbers(words[i]);
-                    bool firstWord;
-                    bool punctuation = containsPunctuation(words[i]);
+                    // Split sentence into words by spaces
+                    string[] words = inSentence.Split(' ');
+                    StringBuilder outSentence = new StringBuilder();
+                    StringBuilder convertedWord;
 
-                    // Test to see if first word in the sentence.  
-                    if (i == 0)
+
+                    // Loop for all the words in a sentence
+                    for (int i = 0; i < words.Length; i++)
                     {
-                        firstWord = true;
-                    }
-                    else
-                    {
-                        firstWord = false;
-                    }
+                        // Validate test conditions
+                        bool caps = allCaps(words[i]);
+                        bool numbers = containsNumbers(words[i]);
+                        bool firstWord;
+                        bool punctuation = containsPunctuation(words[i]);
 
+                        // Test to see if first word in the sentence.  
+                        if (i == 0)
+                        {
+                            firstWord = true;
+                        }
+                        else
+                        {
+                            firstWord = false;
+                        }
 
-                    Console.WriteLine("caps" + caps);
-                    Console.WriteLine("numbers" + numbers);
-                    Console.WriteLine("first word" + firstWord);
-                    Console.WriteLine("punctuation" + punctuation);
+                        // If word is a number, don't translate to Pig Latin
+                        // And don't worry about punctuation
+                        if (numbers)
+                        {
+                            outSentence.Append(words[i]);
+                            outSentence.Append(" ");
+                        }
 
-                    // If word is a number, don't translate to Pig Latin
-                    // And don't worry about punctuation
-                    if (numbers)
-                    {
-                        outSentence.Append(words[i]);
-                        outSentence.Append(" ");
-                    }
-
-                    // If word is a number with punctuation, strip puncuation
-                    // and put it at the end.  Don't convert to Pig Latin
-                    if (numbers && punctuation)
-                       {
+                        // If word is a number with punctuation, strip puncuation
+                        // and put it at the end.  Don't convert to Pig Latin
+                        if (numbers && punctuation)
+                        {
 
                             char punc = returnPunctuation(words[i]);
                             string stripped = stripPunctuation(punc, words[i]);
@@ -369,72 +367,82 @@ namespace Lab6
                         }
 
 
-                    // If punctuation and not the first word, strip off punctuation and add it to end
-                    if (punctuation && !firstWord)
-                    {
-                        char punc = returnPunctuation(words[i]);
-                        string stripped = stripPunctuation(punc, words[i]);
-                        convertedWord = convToPig(stripped);
-                        outSentence.Append(convertedWord);
-                        outSentence.Append(punc);
-                        outSentence.Append(" ");
+                        // If punctuation and not the first word, strip off punctuation and add it to end
+                        if (punctuation && !firstWord)
+                        {
+                            char punc = returnPunctuation(words[i]);
+                            string stripped = stripPunctuation(punc, words[i]);
+                            convertedWord = convToPig(stripped);
+                            outSentence.Append(convertedWord);
+                            outSentence.Append(punc);
+                            outSentence.Append(" ");
+
+                        }
+
+                        // If punctuation and first word, strip off punctuation add it to the end.
+                        // Also capitilize just the first letter of the sentence
+                        if (punctuation && firstWord && !numbers)
+                        {
+                            char punc = returnPunctuation(words[i]);
+                            string stripped = stripPunctuation(punc, words[i]);
+                            string strippedLowered = stripped.ToLower();
+                            convertedWord = convToPig(strippedLowered);
+                            string convertedWordString = convertedWord.ToString();
+                            convertedWordString = capitilizeFirst(convertedWordString);
+                            outSentence.Append(convertedWordString);
+                            outSentence.Append(punc);
+                            outSentence.Append(" ");
+                        }
+
+
+
+
+                        // If word is all caps, keep it all caps
+                        if (caps)
+                        {
+                            convertedWord = convToPig(words[i]);
+                            string convertedWordString = convertedWord.ToString();
+                            convertedWordString = capitilizeAll(convertedWordString);
+                            outSentence.Append(convertedWordString);
+                            outSentence.Append(" ");
+                        }
+
+
+                        // If word is the first word in a sentecne and not all caps/numbers/punctuation, capitilize first letter of word
+                        if (firstWord && !caps && !numbers && !punctuation)
+                        {
+                            words[0] = words[0].ToLower();
+                            convertedWord = convToPig(words[0]);
+                            string convertedWordString = convertedWord.ToString();
+                            convertedWordString = capitilizeFirst(convertedWordString);
+                            outSentence.Append(convertedWordString);
+                            outSentence.Append(" ");
+                        }
+
+                        // If normal word convert to pig latin as normal
+                        if (!firstWord && !caps && !numbers && !punctuation)
+                        {
+                            words[i] = words[i].ToLower();
+                            convertedWord = convToPig(words[i]);
+                            outSentence.Append(convertedWord);
+                            outSentence.Append(" ");
+                        }
+
 
                     }
-
-                    // If punctuation and first word, strip off punctuation add it to the end.
-                    // Also capitilize just the first letter of the sentence
-                    if (punctuation && firstWord && !numbers)
-                    {
-                        char punc = returnPunctuation(words[i]);
-                        string stripped = stripPunctuation(punc, words[i]);
-                        string strippedLowered = stripped.ToLower();
-                        convertedWord = convToPig(strippedLowered);
-                        string convertedWordString = convertedWord.ToString();
-                        convertedWordString = capitilizeFirst(convertedWordString);
-                        outSentence.Append(convertedWordString);
-                        outSentence.Append(punc);
-                        outSentence.Append(" ");
-                    }
-
                    
-
-
-                    // If word is all caps, keep it all caps
-                    if (caps)
-                    {
-                        convertedWord = convToPig(words[i]);
-                        string convertedWordString = convertedWord.ToString();
-                        convertedWordString = capitilizeAll(convertedWordString);
-                        outSentence.Append(convertedWordString);
-                        outSentence.Append(" ");
-                    }
-
-
-                    // If word is the first word in a sentecne and not all caps/numbers/punctuation, capitilize first letter of word
-                    if (firstWord && !caps && !numbers && !punctuation)
-                    {
-                        words[0] = words[0].ToLower();
-                        convertedWord = convToPig(words[0]);
-                        string convertedWordString = convertedWord.ToString();
-                        convertedWordString = capitilizeFirst(convertedWordString);
-                        outSentence.Append(convertedWordString);
-                        outSentence.Append(" ");
-                    }
-
-                    // If normal word convert to pig latin as normal
-                    if (!firstWord && !caps && !numbers && !punctuation)
-                    {
-                        words[i] = words[i].ToLower();
-                        convertedWord = convToPig(words[i]);
-                        outSentence.Append(convertedWord);
-                        outSentence.Append(" ");
-                    }
-
-
+                    // Print out completed sentence
+                    Console.WriteLine(outSentence);
+                }
+                // User entered NULL
+                else
+                {
+                    Console.WriteLine("Bad Input, you didn't enter anything.");
                 }
 
-                // Print out completed sentence
-                Console.WriteLine(outSentence);
+                
+               
+                
 
 
             } while (keepGoing());
